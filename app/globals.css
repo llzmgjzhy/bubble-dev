@@ -24,3 +24,68 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes bubble-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) scale(1.035);
+  }
+}
+
+@keyframes bubble-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(18px, -18px, 0) scale(1.08);
+  }
+}
+
+.bubble-float {
+  animation: bubble-float 8s ease-in-out infinite;
+}
+
+.bubble-drift {
+  animation: bubble-drift 14s ease-in-out infinite;
+}
+
+.bubble-surface {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(18px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 18px 60px rgb(0 0 0 / 0.16);
+}
+
+.bubble-surface::before {
+  content: "";
+  position: absolute;
+  inset: 1px auto auto 1px;
+  width: 38%;
+  height: 38%;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    rgb(255 255 255 / 0.28),
+    rgb(255 255 255 / 0.05) 48%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.bubble-soft {
+  transition:
+    transform 360ms cubic-bezier(0.2, 1.4, 0.34, 1),
+    border-color 300ms ease,
+    background-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.bubble-soft:hover {
+  transform: translateY(-5px) scale(1.015);
+}
