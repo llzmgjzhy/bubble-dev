@@ -4,39 +4,16 @@ import Link from "next/link";
 import { FormEvent, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const emotionOptions = [
-  "清晨",
-  "空落",
-  "怀念",
-  "余温",
-  "未完成",
-  "独处",
-  "回落",
-  "失真",
-  "安静",
-  "离开",
-  "旧事",
-  "温柔",
-];
-
 function CreateForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [time, setTime] = useState("");
-  const [place, setPlace] = useState("");
-  const [emotions, setEmotions] = useState<string[]>([]);
   const [text, setText] = useState(searchParams.get("initialText") ?? "");
   const [song, setSong] = useState("");
   const [title, setTitle] = useState("");
+  const [isMusicOpen, setIsMusicOpen] = useState(false);
+  const [isImageOpen, setIsImageOpen] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
   const canGenerate = text.trim().length > 0;
-
-  function toggleEmotion(emotion: string) {
-    setEmotions((current) =>
-      current.includes(emotion)
-        ? current.filter((item) => item !== emotion)
-        : [...current, emotion],
-    );
-  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -46,7 +23,7 @@ function CreateForm() {
     }
 
     router.push(
-      `/bubble?time=${encodeURIComponent(time)}&place=${encodeURIComponent(place)}&emotions=${encodeURIComponent(emotions.join(","))}&text=${encodeURIComponent(text)}&song=${encodeURIComponent(song)}&title=${encodeURIComponent(title)}`,
+      `/bubble?text=${encodeURIComponent(text)}&song=${encodeURIComponent(song)}&title=${encodeURIComponent(title)}`,
     );
   }
 
@@ -71,7 +48,7 @@ function CreateForm() {
               创建一个泡泡
             </h1>
             <p className="mx-auto mt-5 max-w-lg text-base leading-8 text-slate-300/75">
-              把一段感觉、一首歌和一些画面，轻轻放进这里。
+              把那段感觉先放下来，剩下的让泡泡慢慢长出来。
             </p>
           </div>
         </header>
@@ -79,97 +56,69 @@ function CreateForm() {
         <form onSubmit={handleSubmit} className="mt-12 flex flex-col gap-6">
           <section className="bubble-surface rounded-2xl border border-white/15 bg-white/[0.06] p-5">
             <label
-              htmlFor="bubble-time"
+              htmlFor="bubble-text"
               className="block text-lg font-medium text-zinc-100"
             >
-              阶段 1：发生在什么时候？
+              把那个时刻写下来
             </label>
-            <input
-              id="bubble-time"
-              value={time}
-              onChange={(event) => setTime(event.target.value)}
-              placeholder="比如：凌晨六点、返程路上、毕业前几天、一个下雨的傍晚"
-              className="mt-4 w-full rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-3 text-base text-zinc-100 outline-none transition placeholder:text-slate-400 focus:border-white/35"
-            />
-          </section>
-
-          <section className="bubble-surface rounded-2xl border border-white/15 bg-white/[0.06] p-5">
-            <label
-              htmlFor="bubble-place"
-              className="block text-lg font-medium text-zinc-100"
-            >
-              阶段 2：那一刻你在哪里？
-            </label>
-            <input
-              id="bubble-place"
-              value={place}
-              onChange={(event) => setPlace(event.target.value)}
-              placeholder="宿舍、火车上、操场边、家里的房间"
-              className="mt-4 w-full rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-3 text-base text-zinc-100 outline-none transition placeholder:text-slate-400 focus:border-white/35"
+            <p className="mt-2 text-sm leading-6 text-slate-400/80">
+              不用整理，也不用完整。写下你记得的画面、声音、天气、某个人，或者那种说不清的感觉。
+            </p>
+            <textarea
+              id="bubble-text"
+              value={text}
+              onChange={(event) => setText(event.target.value)}
+              placeholder="比如：今天早上很早醒来，宿舍很安静，我明明还困却睡不着。戴上耳机听到那首歌的时候，突然想起以前很多个类似的清晨……"
+              className="mt-4 min-h-[260px] w-full resize-none rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-3 text-base leading-8 text-zinc-100 outline-none transition placeholder:text-slate-400 focus:border-white/35"
             />
           </section>
 
           <section className="bubble-surface rounded-2xl border border-white/15 bg-white/[0.06] p-5">
             <h2 className="text-lg font-medium text-zinc-100">
-              阶段 3：那种感觉更接近什么？
+              也可以放入一些触发它的东西
             </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-400/80">
-              可以多选，像是在给那段感觉找几个坐标。
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {emotionOptions.map((emotion) => {
-                const isSelected = emotions.includes(emotion);
+            <div className="mt-4 grid gap-3">
+              <button
+                type="button"
+                onClick={() => setIsMusicOpen((current) => !current)}
+                className="bubble-soft rounded-2xl border border-white/15 bg-white/[0.05] px-4 py-3 text-left text-sm text-slate-100 hover:border-white/25 hover:bg-white/[0.09]"
+              >
+                添加音乐
+              </button>
+              {isMusicOpen && (
+                <input
+                  value={song}
+                  onChange={(event) => setSong(event.target.value)}
+                  placeholder="歌名 / 歌手 / 一段歌词"
+                  className="w-full rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-3 text-base text-zinc-100 outline-none transition placeholder:text-slate-400 focus:border-white/35"
+                />
+              )}
 
-                return (
-                  <button
-                    key={emotion}
-                    type="button"
-                    onClick={() => toggleEmotion(emotion)}
-                    className={`rounded-full border px-3 py-1.5 text-sm transition duration-300 ${
-                      isSelected
-                        ? "border-cyan-100/50 bg-white text-neutral-950"
-                        : "border-white/15 bg-white/[0.06] text-slate-200 hover:border-white/30 hover:bg-white/[0.1]"
-                    }`}
-                  >
-                    {emotion}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
+              <button
+                type="button"
+                onClick={() => setIsImageOpen((current) => !current)}
+                className="bubble-soft rounded-2xl border border-white/15 bg-white/[0.05] px-4 py-3 text-left text-sm text-slate-100 hover:border-white/25 hover:bg-white/[0.09]"
+              >
+                添加图片
+              </button>
+              {isImageOpen && (
+                <div className="rounded-2xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm text-slate-300/85">
+                  图片上传将在后续接入
+                </div>
+              )}
 
-          <section className="bubble-surface rounded-2xl border border-white/15 bg-white/[0.06] p-5">
-            <label
-              htmlFor="bubble-text"
-              className="block text-lg font-medium text-zinc-100"
-            >
-              阶段 4：把那段感觉写下来
-            </label>
-            <textarea
-              id="bubble-text"
-              value={text}
-              onChange={(event) => setText(event.target.value)}
-              placeholder="不要写发生了什么，试着写那一刻你像是被什么包围着。"
-              className="mt-4 min-h-[180px] w-full resize-none rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-3 text-base leading-8 text-zinc-100 outline-none transition placeholder:text-slate-400 focus:border-white/35"
-            />
-          </section>
-
-          <section className="bubble-surface rounded-2xl border border-white/15 bg-white/[0.06] p-5">
-            <label
-              htmlFor="bubble-song"
-              className="block text-lg font-medium text-zinc-100"
-            >
-              哪首歌会把你带回那里？
-            </label>
-            <input
-              id="bubble-song"
-              value={song}
-              onChange={(event) => setSong(event.target.value)}
-              placeholder="歌名 / 歌手 / 一段歌词"
-              className="mt-4 w-full rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-3 text-base text-zinc-100 outline-none transition placeholder:text-slate-400 focus:border-white/35"
-            />
-            <div className="mt-3 rounded-2xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm text-slate-200/85">
-              {song.trim() ? `将放入：${song}` : "还没有放入音乐"}
+              <button
+                type="button"
+                onClick={() => setIsVideoOpen((current) => !current)}
+                className="bubble-soft rounded-2xl border border-white/15 bg-white/[0.05] px-4 py-3 text-left text-sm text-slate-100 hover:border-white/25 hover:bg-white/[0.09]"
+              >
+                添加视频
+              </button>
+              {isVideoOpen && (
+                <div className="rounded-2xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm text-slate-300/85">
+                  视频上传将在后续接入
+                </div>
+              )}
             </div>
           </section>
 
@@ -178,10 +127,10 @@ function CreateForm() {
               htmlFor="bubble-title"
               className="block text-lg font-medium text-zinc-100"
             >
-              你想把这个泡泡叫做什么？
+              给它一个名字
             </label>
             <p className="mt-2 text-sm leading-6 text-slate-400/80">
-              也可以先空着，让它自己长出名字。
+              也可以空着，让 AI 帮它命名。
             </p>
             <input
               id="bubble-title"
