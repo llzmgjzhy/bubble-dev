@@ -1,7 +1,13 @@
 import OpenAI from "openai";
 import { NextRequest, NextResponse } from "next/server";
 import { ProxyAgent } from "undici";
-import type { GenerateBubbleInput, GeneratedBubble } from "@/app/lib/mockGenerateBubble";
+import type { BubbleStory } from "@/app/types/bubble";
+
+type GenerateBubbleInput = {
+  title?: string;
+  text: string;
+  song?: string;
+};
 
 const openaiBaseUrl =
   process.env.OPENAI_BASE_URL || "https://apinebula.com/v1";
@@ -30,29 +36,79 @@ const bubbleSchema = {
   properties: {
     title: { type: "string" },
     subtitle: { type: "string" },
-    emotions: {
+    mood: {
       type: "array",
       minItems: 3,
       maxItems: 5,
       items: { type: "string" },
     },
-    song: { type: "string" },
-    scenes: {
+    storyFragments: {
       type: "array",
-      minItems: 4,
-      maxItems: 6,
+      minItems: 5,
+      maxItems: 7,
       items: {
         type: "object",
         additionalProperties: false,
         properties: {
+          id: { type: "string" },
           type: {
             type: "string",
-            enum: ["opening", "memory", "trigger", "echo"],
+            enum: ["scene", "trigger", "feeling", "memory", "echo"],
           },
+          title: { type: "string" },
           text: { type: "string" },
-          visual: { type: "string" },
+          mediaSuggestion: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              type: {
+                type: "string",
+                enum: ["image", "video", "music", "silence", "text"],
+              },
+              reason: { type: "string" },
+              visualPrompt: { type: "string" },
+              audioPrompt: { type: "string" },
+            },
+            required: ["type", "reason", "visualPrompt", "audioPrompt"],
+          },
+          userCanAdd: {
+            type: "array",
+            items: { type: "string" },
+          },
         },
-        required: ["type", "text", "visual"],
+        required: ["id", "type", "title", "text", "mediaSuggestion", "userCanAdd"],
+      },
+    },
+    followUpPrompts: {
+      type: "array",
+      minItems: 3,
+      maxItems: 5,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          id: { type: "string" },
+          targetFragmentId: { type: "string" },
+          question: { type: "string" },
+          options: {
+            type: "array",
+            items: { type: "string" },
+          },
+        },
+        required: ["id", "targetFragmentId", "question", "options"],
+      },
+    },
+    replayScript: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          fragmentId: { type: "string" },
+          displayText: { type: "string" },
+          duration: { type: "number" },
+        },
+        required: ["fragmentId", "displayText", "duration"],
       },
     },
     originalText: { type: "string" },
@@ -60,9 +116,10 @@ const bubbleSchema = {
   required: [
     "title",
     "subtitle",
-    "emotions",
-    "song",
-    "scenes",
+    "mood",
+    "storyFragments",
+    "followUpPrompts",
+    "replayScript",
     "originalText",
   ],
 } as const;
@@ -87,62 +144,95 @@ function normalizeRequestBody(body: unknown): GenerateBubbleInput | null {
 
 function buildPrompt(input: GenerateBubbleInput) {
   return `
-你是一个“情绪记忆泡泡生成器”。
+你是一个“AI 记忆故事流共创助手”。
 
-你的任务不是分析用户，也不是总结情绪，而是根据用户给出的文字和可选音乐，复刻那段记忆的场景、氛围、感官和情绪流动。
-要让用户感觉：这个泡泡保存了那一刻，而不是解释了那一刻。
-生成内容最终会用于一个连续沉浸式泡泡播放器，像安静、私密、克制的 Story / Reels，而不是报告页面。
-所有 scene 要像同一个空间里陆续出现的镜头，而不是分栏说明、分析条目或总结卡片。
+你的任务不是写一段文案，也不是做心理分析。
+用户会给你一段模糊、碎片化、说不清的情绪记忆。
+你要帮用户把它整理成一条可以继续生长的多模态故事流。
+
+你需要：
+- 提取记忆中的场景、触发器、身体感、情绪、回忆和余波
+- 把它们组织成 storyFragments
+- 为每个片段建议最适合的媒体承载方式
+- 用 followUpPrompts 帮用户继续找回和补全
+- 用 replayScript 支持后续沉浸式回看
 
 写作原则：
 - 克制
 - 具体
 - 有画面
 - 有留白
-- 不要过度煽情
 - 不鸡汤
-- 不要使用心理咨询口吻
-- 不要说“你感到……说明……”
-- 多写光线、声音、空间、身体感、时间感
-- 少写抽象心理解释，少用概念化判断
+- 不心理分析
+- 不要说“这说明”“这体现”“你可能”
 - 不要编造过多具体事实，但可以基于用户输入合理补全氛围
-- 整体要让人感觉被带回去，而不是被解释
+- 不要替用户编造过度具体的人名、地点、事件
+- 可以合理补全氛围、光线、声音、身体感
+- 帮助用户表达说不清的东西
 
 禁止使用以下口吻或短语：
 - “这说明”
 - “这体现”
 - “你可能”
-- “你的情绪”
-- “反映出”
-- “这种状态”
 
 字段要求：
 - title 不超过 12 个字
 - subtitle 不超过 24 字
-- emotions 3-5 个情绪词，要细腻，不要只用开心/悲伤
-- song 如果用户提供了音乐，原样保留；如果没有，返回空字符串
-- scenes 必须 4-6 个
-- 每个 scene.text 不超过 40 字
-- 每个 scene 都像一个镜头，有进入、停留、触发、回声的节奏
-- scene.visual 是该镜头的画面提示，比如“清晨宿舍、灰蓝色天光、空床位”
-- 至少包含 1 个 opening scene 和 1 个 echo scene
-- echo scene 必须放在最后，像一句收束的回声，不鸡汤，不说教
-- memory scene 要像记忆重新浮现的瞬间，不要像分析条目
-- trigger scene 要像触发那段感觉的入口；如果用户提供 song，至少有一个 trigger scene 和音乐有关
-- 不要输出长段落，每个 scene 只留一个可以被全屏承载的短句
-- originalText 必须保留用户原文
+- mood 返回 3-5 个细腻情绪词
+- storyFragments 返回 5-7 个，形成自然故事流
+- storyFragment.id 使用简短英文或拼音 slug，必须唯一
+- storyFragment.type 只能是 "scene" | "trigger" | "feeling" | "memory" | "echo"
+- 每个 storyFragment.title 不超过 12 字
+- 每个 storyFragment.text 不超过 120 字，具体、有画面，不要分析口吻
+- mediaSuggestion 表示这个片段适合用什么模态承载
+- mediaSuggestion.type 只能是 "image" | "video" | "music" | "silence" | "text"
+- mediaSuggestion.reason 简短说明为什么适合这个模态
+- mediaSuggestion.visualPrompt 如果不适用，返回空字符串
+- mediaSuggestion.audioPrompt 如果不适用，返回空字符串
+- userCanAdd 是用户可补充内容，例如 ["图片", "一句话"]、["音乐"]、["视频"]
+- followUpPrompts 返回 3-5 个，帮助用户继续补全故事
+- followUpPrompts.targetFragmentId 必须对应 storyFragments 里的 id
+- followUpPrompts.question 要温和、具体，不像问卷
+- followUpPrompts.options 如果没有合适选项，返回空数组
+- replayScript 用于未来沉浸回看，顺序应该对应 storyFragments 的情绪流动
+- replayScript.fragmentId 必须对应 storyFragments 里的 id
+- replayScript.displayText 不超过 40 字
+- replayScript.duration 使用毫秒数，建议 1800 到 5000
+- originalText 保存用户原文
 
 输出 JSON 结构：
 {
   "title": string,
   "subtitle": string,
-  "emotions": string[],
-  "song": string,
-  "scenes": [
+  "mood": string[],
+  "storyFragments": [
     {
-      "type": "opening" | "memory" | "trigger" | "echo",
+      "id": string,
+      "type": "scene" | "trigger" | "feeling" | "memory" | "echo",
+      "title": string,
       "text": string,
-      "visual": string
+      "mediaSuggestion": {
+        "type": "image" | "video" | "music" | "silence" | "text",
+        "reason": string,
+        "visualPrompt": string,
+        "audioPrompt": string
+      },
+      "userCanAdd": string[]
+    }
+  ],
+  "followUpPrompts": [
+    {
+      "id": string,
+      "targetFragmentId": string,
+      "question": string,
+      "options": string[]
+    }
+  ],
+  "replayScript": [
+    {
+      "fragmentId": string,
+      "displayText": string,
+      "duration": number
     }
   ],
   "originalText": string
@@ -200,7 +290,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const bubble = JSON.parse(content) as GeneratedBubble;
+    const bubble = JSON.parse(content) as BubbleStory;
 
     return NextResponse.json(bubble);
   } catch (error) {

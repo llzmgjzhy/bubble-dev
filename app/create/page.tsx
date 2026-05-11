@@ -10,9 +10,7 @@ function CreateForm() {
   const [text, setText] = useState(searchParams.get("initialText") ?? "");
   const [song, setSong] = useState("");
   const [title, setTitle] = useState("");
-  const [isMusicOpen, setIsMusicOpen] = useState(false);
-  const [isImageOpen, setIsImageOpen] = useState(false);
-  const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [mediaNotice, setMediaNotice] = useState("");
   const canGenerate = text.trim().length > 0;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -45,10 +43,10 @@ function CreateForm() {
           <div className="bubble-float absolute left-1/2 top-0 h-28 w-28 -translate-x-1/2 -translate-y-8 rounded-full border border-cyan-100/20 bg-cyan-100/[0.08] blur-[1px]" />
           <div className="relative">
             <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-              创建一个泡泡
+              把那个时刻写下来
             </h1>
             <p className="mx-auto mt-5 max-w-lg text-base leading-8 text-slate-300/75">
-              把那段感觉先放下来，剩下的让泡泡慢慢长出来。
+              不用整理，也不用完整。写下你记得的画面、声音、某个人，或者那种说不清的感觉。
             </p>
           </div>
         </header>
@@ -62,7 +60,7 @@ function CreateForm() {
               把那个时刻写下来
             </label>
             <p className="mt-2 text-sm leading-6 text-slate-400/80">
-              不用整理，也不用完整。写下你记得的画面、声音、天气、某个人，或者那种说不清的感觉。
+              先把它放下来。哪怕只是几个画面、一个声音，或者一句没说完的话。
             </p>
             <textarea
               id="bubble-text"
@@ -74,52 +72,19 @@ function CreateForm() {
           </section>
 
           <section className="bubble-surface rounded-2xl border border-white/15 bg-white/[0.06] p-5">
-            <h2 className="text-lg font-medium text-zinc-100">
-              也可以放入一些触发它的东西
-            </h2>
-            <div className="mt-4 grid gap-3">
-              <button
-                type="button"
-                onClick={() => setIsMusicOpen((current) => !current)}
-                className="bubble-soft rounded-2xl border border-white/15 bg-white/[0.05] px-4 py-3 text-left text-sm text-slate-100 hover:border-white/25 hover:bg-white/[0.09]"
-              >
-                添加音乐
-              </button>
-              {isMusicOpen && (
-                <input
-                  value={song}
-                  onChange={(event) => setSong(event.target.value)}
-                  placeholder="歌名 / 歌手 / 一段歌词"
-                  className="w-full rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-3 text-base text-zinc-100 outline-none transition placeholder:text-slate-400 focus:border-white/35"
-                />
-              )}
-
-              <button
-                type="button"
-                onClick={() => setIsImageOpen((current) => !current)}
-                className="bubble-soft rounded-2xl border border-white/15 bg-white/[0.05] px-4 py-3 text-left text-sm text-slate-100 hover:border-white/25 hover:bg-white/[0.09]"
-              >
-                添加图片
-              </button>
-              {isImageOpen && (
-                <div className="rounded-2xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm text-slate-300/85">
-                  图片上传将在后续接入
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setIsVideoOpen((current) => !current)}
-                className="bubble-soft rounded-2xl border border-white/15 bg-white/[0.05] px-4 py-3 text-left text-sm text-slate-100 hover:border-white/25 hover:bg-white/[0.09]"
-              >
-                添加视频
-              </button>
-              {isVideoOpen && (
-                <div className="rounded-2xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm text-slate-300/85">
-                  视频上传将在后续接入
-                </div>
-              )}
-            </div>
+            <label
+              htmlFor="bubble-song"
+              className="block text-lg font-medium text-zinc-100"
+            >
+              哪首歌会把你带回去？
+            </label>
+            <input
+              id="bubble-song"
+              value={song}
+              onChange={(event) => setSong(event.target.value)}
+              placeholder="歌名 / 歌手 / 一段歌词"
+              className="mt-4 w-full rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-3 text-base text-zinc-100 outline-none transition placeholder:text-slate-400 focus:border-white/35"
+            />
           </section>
 
           <section className="bubble-surface rounded-2xl border border-white/15 bg-white/[0.06] p-5">
@@ -129,9 +94,6 @@ function CreateForm() {
             >
               给它一个名字
             </label>
-            <p className="mt-2 text-sm leading-6 text-slate-400/80">
-              也可以空着，让 AI 帮它命名。
-            </p>
             <input
               id="bubble-title"
               value={title}
@@ -139,6 +101,38 @@ function CreateForm() {
               placeholder="例如：冬天宿舍六点醒来"
               className="mt-4 w-full rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-3 text-base text-zinc-100 outline-none transition placeholder:text-slate-400 focus:border-white/35"
             />
+          </section>
+
+          <section className="bubble-surface rounded-2xl border border-white/15 bg-white/[0.06] p-5">
+            <h2 className="text-lg font-medium text-zinc-100">可选媒体</h2>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => setMediaNotice("后续接入上传。")}
+                className="bubble-soft rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-sm text-slate-100 hover:border-white/25 hover:bg-white/[0.09]"
+              >
+                添加图片
+              </button>
+              <button
+                type="button"
+                onClick={() => setMediaNotice("后续接入上传。")}
+                className="bubble-soft rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-sm text-slate-100 hover:border-white/25 hover:bg-white/[0.09]"
+              >
+                添加视频
+              </button>
+              <button
+                type="button"
+                onClick={() => setMediaNotice("后续接入上传。")}
+                className="bubble-soft rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-sm text-slate-100 hover:border-white/25 hover:bg-white/[0.09]"
+              >
+                添加更多声音
+              </button>
+            </div>
+            {mediaNotice && (
+              <p className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300/80">
+                {mediaNotice}
+              </p>
+            )}
           </section>
 
           <button

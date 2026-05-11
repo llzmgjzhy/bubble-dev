@@ -3,94 +3,15 @@
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import BubblePlayer, { type PlayerBubble } from "@/components/BubblePlayer";
-import type {
-  BubbleScene,
-  GeneratedBubble,
-  MemoryFragment,
-} from "../lib/mockGenerateBubble";
-
-function splitMomentIntoScenes(text?: string): BubbleScene[] {
-  if (!text) {
-    return [];
-  }
-
-  const parts = text
-    .split(/[。！？!?]/)
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .slice(0, 2);
-
-  return parts.map((part) => ({
-    type: "memory",
-    text: part.length > 40 ? `${part.slice(0, 39)}…` : part,
-    visual: "缓慢浮现的画面、贴近身体的空气",
-  }));
-}
-
-function convertBubbleForPlayer(bubble: GeneratedBubble): PlayerBubble {
-  if (bubble.scenes && bubble.scenes.length > 0) {
-    return {
-      title: bubble.title,
-      emotions: bubble.emotions,
-      song: bubble.song,
-      scenes: bubble.scenes,
-      originalText: bubble.originalText,
-    };
-  }
-
-  const memoryScenes =
-    bubble.memoryFragments?.map((fragment: MemoryFragment) => ({
-      type: "memory" as const,
-      text:
-        fragment.text.length > 40
-          ? `${fragment.text.slice(0, 39)}…`
-          : fragment.text,
-      visual: fragment.title,
-    })) ?? [];
-
-  const fallbackScenes: BubbleScene[] = [
-    {
-      type: "opening",
-      text: bubble.opening || bubble.subtitle || "这个泡泡正在展开。",
-      visual: bubble.scene?.atmosphere || "一层很轻的光、慢慢靠近的声音",
-    },
-    ...splitMomentIntoScenes(bubble.reconstructedMoment),
-    ...memoryScenes.slice(0, 2),
-  ];
-
-  if (bubble.musicInterpretation) {
-    fallbackScenes.push({
-      type: "trigger",
-      text:
-        bubble.musicInterpretation.length > 40
-          ? `${bubble.musicInterpretation.slice(0, 39)}…`
-          : bubble.musicInterpretation,
-      visual: bubble.song || "耳机里的声音、被牵回来的旧画面",
-    });
-  }
-
-  fallbackScenes.push({
-    type: "echo",
-    text: bubble.echo || "那一刻还在，只是变得很轻。",
-    visual: "光慢慢散开、安静落回原处",
-  });
-
-  return {
-    title: bubble.title,
-    emotions: bubble.emotions,
-    song: bubble.song,
-    scenes: fallbackScenes.slice(0, 6),
-    originalText: bubble.originalText,
-  };
-}
+import StoryFlowEditor from "@/components/StoryFlowEditor";
+import type { BubbleStory } from "@/app/types/bubble";
 
 function BubbleContent() {
   const searchParams = useSearchParams();
   const text = searchParams.get("text") ?? "";
   const song = searchParams.get("song") ?? "";
   const title = searchParams.get("title") ?? "";
-  const [bubble, setBubble] = useState<GeneratedBubble | null>(null);
+  const [bubble, setBubble] = useState<BubbleStory | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -115,9 +36,7 @@ function BubbleContent() {
           signal: controller.signal,
         });
 
-        const data = (await response.json()) as
-          | GeneratedBubble
-          | { error?: string };
+        const data = (await response.json()) as BubbleStory | { error?: string };
 
         if (!response.ok) {
           throw new Error(
@@ -127,7 +46,7 @@ function BubbleContent() {
           );
         }
 
-        setBubble(data as GeneratedBubble);
+        setBubble(data as BubbleStory);
       } catch (caughtError) {
         if (controller.signal.aborted) {
           return;
@@ -158,10 +77,10 @@ function BubbleContent() {
         <div className="relative z-10 mx-auto flex min-h-screen max-w-[760px] flex-col items-center justify-center px-6 text-center">
           <div className="bubble-surface bubble-float rounded-[2rem] border border-white/15 bg-white/[0.07] px-8 py-7">
             <p className="text-lg leading-8 text-slate-100">
-              正在把这些碎片聚成一个泡泡
+              正在把这些碎片整理成故事流
             </p>
             <p className="mt-3 text-sm text-slate-300/75">
-              光线、声音和那一点说不清的感觉，正在慢慢靠近。
+              记忆锚点、光线和声音正在慢慢浮起来。
             </p>
           </div>
         </div>
@@ -194,7 +113,7 @@ function BubbleContent() {
     );
   }
 
-  return <BubblePlayer bubble={convertBubbleForPlayer(bubble)} />;
+  return <StoryFlowEditor bubble={bubble} />;
 }
 
 export default function BubblePage() {
