@@ -6,12 +6,46 @@ import { useSearchParams } from "next/navigation";
 import StoryFlowEditor from "@/components/StoryFlowEditor";
 import type { BubbleStory } from "@/app/types/bubble";
 
+type DraftImage = {
+  id: string;
+  url: string;
+  name: string;
+};
+
+function readDraftImages(): DraftImage[] {
+  try {
+    const rawImages = localStorage.getItem("bubble_draft_images");
+
+    if (!rawImages) {
+      return [];
+    }
+
+    const parsedImages = JSON.parse(rawImages) as unknown;
+
+    if (!Array.isArray(parsedImages)) {
+      return [];
+    }
+
+    return parsedImages.filter(
+      (image): image is DraftImage =>
+        image &&
+        typeof image === "object" &&
+        typeof (image as DraftImage).id === "string" &&
+        typeof (image as DraftImage).url === "string" &&
+        typeof (image as DraftImage).name === "string",
+    );
+  } catch {
+    return [];
+  }
+}
+
 function BubbleContent() {
   const searchParams = useSearchParams();
   const text = searchParams.get("text") ?? "";
   const song = searchParams.get("song") ?? "";
   const title = searchParams.get("title") ?? "";
   const [bubble, setBubble] = useState<BubbleStory | null>(null);
+  const [initialImages, setInitialImages] = useState<DraftImage[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -46,6 +80,7 @@ function BubbleContent() {
           );
         }
 
+        setInitialImages(readDraftImages());
         setBubble(data as BubbleStory);
       } catch (caughtError) {
         if (controller.signal.aborted) {
@@ -71,15 +106,18 @@ function BubbleContent() {
 
   if (isLoading) {
     return (
-      <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-sky-950 via-violet-950 to-rose-950 text-zinc-100">
-        <div className="bubble-drift absolute left-1/2 top-16 h-80 w-80 -translate-x-1/2 rounded-full bg-cyan-300/20 blur-3xl" />
-        <div className="bubble-float absolute bottom-10 right-0 h-96 w-96 translate-x-1/3 rounded-full bg-fuchsia-300/16 blur-3xl" />
+      <main className="app-shell relative min-h-screen overflow-hidden bg-[#151827] text-white">
+        <div className="ambient-bg pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="ambient-orb float-slow absolute left-[-8rem] top-[-5rem] h-80 w-80 rounded-full bg-[rgba(168,135,255,0.35)] opacity-35 blur-3xl" />
+          <div className="ambient-orb bubble-float absolute right-[-7rem] top-24 h-96 w-96 rounded-full bg-[rgba(96,165,250,0.28)] opacity-35 blur-3xl" />
+          <div className="ambient-orb float-slow absolute bottom-[-8rem] left-[35%] h-96 w-96 rounded-full bg-[rgba(251,191,120,0.22)] opacity-35 blur-3xl" />
+        </div>
         <div className="relative z-10 mx-auto flex min-h-screen max-w-[760px] flex-col items-center justify-center px-6 text-center">
-          <div className="bubble-surface bubble-float rounded-[2rem] border border-white/15 bg-white/[0.07] px-8 py-7">
-            <p className="text-lg leading-8 text-slate-100">
+          <div className="glass-panel bubble-float px-8 py-7">
+            <p className="text-lg leading-8 text-white/90">
               正在把这些碎片整理成故事流
             </p>
-            <p className="mt-3 text-sm text-slate-300/75">
+            <p className="mt-3 text-sm text-white/65">
               记忆锚点、光线和声音正在慢慢浮起来。
             </p>
           </div>
@@ -90,20 +128,23 @@ function BubbleContent() {
 
   if (error || !bubble) {
     return (
-      <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-sky-950 via-violet-950 to-rose-950 text-zinc-100">
-        <div className="bubble-drift absolute left-1/2 top-16 h-80 w-80 -translate-x-1/2 rounded-full bg-cyan-300/20 blur-3xl" />
-        <div className="bubble-float absolute bottom-10 right-0 h-96 w-96 translate-x-1/3 rounded-full bg-fuchsia-300/16 blur-3xl" />
+      <main className="app-shell relative min-h-screen overflow-hidden bg-[#151827] text-white">
+        <div className="ambient-bg pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="ambient-orb float-slow absolute left-[-8rem] top-[-5rem] h-80 w-80 rounded-full bg-[rgba(168,135,255,0.35)] opacity-35 blur-3xl" />
+          <div className="ambient-orb bubble-float absolute right-[-7rem] top-24 h-96 w-96 rounded-full bg-[rgba(96,165,250,0.28)] opacity-35 blur-3xl" />
+          <div className="ambient-orb float-slow absolute bottom-[-8rem] left-[35%] h-96 w-96 rounded-full bg-[rgba(251,191,120,0.22)] opacity-35 blur-3xl" />
+        </div>
         <div className="relative z-10 mx-auto flex min-h-screen max-w-[760px] flex-col items-center justify-center px-6 text-center">
-          <div className="bubble-surface rounded-[2rem] border border-white/15 bg-white/[0.07] px-8 py-7">
-            <h1 className="text-2xl font-medium text-zinc-100">
+          <div className="glass-panel px-8 py-7">
+            <h1 className="text-2xl font-medium text-white/90">
               泡泡暂时没有形成
             </h1>
-            <p className="mt-4 text-sm leading-7 text-slate-300/85">
+            <p className="mt-4 text-sm leading-7 text-white/70">
               {error || "生成泡泡失败，请稍后再试。"}
             </p>
             <Link
               href="/create"
-              className="bubble-soft mt-7 inline-flex rounded-full border border-white/15 bg-white/[0.06] px-5 py-3 text-sm text-slate-100 hover:border-white/25 hover:bg-white/[0.1]"
+              className="ghost-button bubble-soft mt-7 inline-flex rounded-full px-5 py-3 text-sm"
             >
               回到创建页
             </Link>
@@ -113,7 +154,7 @@ function BubbleContent() {
     );
   }
 
-  return <StoryFlowEditor bubble={bubble} />;
+  return <StoryFlowEditor bubble={bubble} initialImages={initialImages} />;
 }
 
 export default function BubblePage() {

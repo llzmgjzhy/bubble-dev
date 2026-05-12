@@ -15,6 +15,11 @@ export type StoryFragment = {
   text: string;
   mediaSuggestion: MediaSuggestion;
   userCanAdd: string[];
+  attachedMedia?: {
+    type: "image";
+    url: string;
+    name?: string;
+  }[];
 };
 
 export type MediaSuggestion = {
