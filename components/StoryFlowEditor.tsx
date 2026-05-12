@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { useState } from "react";
+import { getMoodTheme } from "@/app/lib/moodTheme";
 import type { BubbleStory, StoryFragment } from "@/app/types/bubble";
 import StoryReplay from "@/components/StoryReplay";
 
@@ -67,6 +69,7 @@ export default function StoryFlowEditor({
   const [uploadedImages, setUploadedImages] =
     useState<UploadedImage[]>(initialImages);
   const [imagePickerFragmentId, setImagePickerFragmentId] = useState("");
+  const theme = getMoodTheme(editableBubble.mood);
 
   function markComingSoon(action: string, fragmentTitle?: string) {
     setNotice(
@@ -351,11 +354,23 @@ export default function StoryFlowEditor({
   }
 
   return (
-    <main className="app-shell relative min-h-screen overflow-hidden bg-[#151827] px-5 py-8 text-white sm:px-8 sm:py-12">
+    <main
+      className="app-shell relative overflow-hidden px-5 py-8 sm:px-8 sm:py-12"
+      style={{ "--mood-accent": theme.accent } as CSSProperties}
+    >
       <div className="ambient-bg pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="ambient-orb float-slow absolute left-[-8rem] top-[-5rem] h-80 w-80 rounded-full bg-[rgba(168,135,255,0.35)] opacity-35 blur-3xl" />
-        <div className="ambient-orb bubble-float absolute right-[-7rem] top-24 h-96 w-96 rounded-full bg-[rgba(96,165,250,0.28)] opacity-35 blur-3xl" />
-        <div className="ambient-orb float-slow absolute bottom-[-8rem] left-[35%] h-96 w-96 rounded-full bg-[rgba(251,191,120,0.22)] opacity-35 blur-3xl" />
+        <div
+          className="ambient-orb float-slow absolute left-[-8rem] top-[-5rem] h-80 w-80 rounded-full opacity-35 blur-3xl"
+          style={{ backgroundColor: theme.orbs[0] }}
+        />
+        <div
+          className="ambient-orb bubble-float absolute right-[-7rem] top-24 h-96 w-96 rounded-full opacity-35 blur-3xl"
+          style={{ backgroundColor: theme.orbs[1] }}
+        />
+        <div
+          className="ambient-orb float-slow absolute bottom-[-8rem] left-[35%] h-96 w-96 rounded-full opacity-35 blur-3xl"
+          style={{ backgroundColor: theme.orbs[2] }}
+        />
       </div>
 
       <div className="relative z-10 mx-auto max-w-5xl">
@@ -373,6 +388,10 @@ export default function StoryFlowEditor({
                 <span
                   key={mood}
                   className="rounded-full border border-white/15 bg-white/[0.08] px-3 py-1 text-xs text-white/70 backdrop-blur"
+                  style={{
+                    borderColor: `${theme.accent}55`,
+                    boxShadow: `0 0 22px ${theme.accent}18`,
+                  }}
                 >
                   {mood}
                 </span>
@@ -447,7 +466,12 @@ export default function StoryFlowEditor({
         </section>
 
         <section className="relative">
-          <div className="absolute left-4 top-3 h-[calc(100%-1.5rem)] w-px bg-gradient-to-b from-white/0 via-white/22 to-white/0 sm:left-1/2" />
+          <div
+            className="absolute left-4 top-3 h-[calc(100%-1.5rem)] w-px bg-gradient-to-b from-white/0 to-white/0 sm:left-1/2"
+            style={{
+              backgroundImage: `linear-gradient(to bottom, transparent, ${theme.accent}55, transparent)`,
+            }}
+          />
 
           <div className="space-y-8">
             {editableBubble.storyFragments.map((fragment, index) => {
@@ -462,7 +486,13 @@ export default function StoryFlowEditor({
                   index % 2 === 0 ? "sm:justify-start" : "sm:justify-end"
                 }`}
               >
-                <div className="absolute left-4 top-8 h-3 w-3 -translate-x-1/2 rounded-full border border-white/30 bg-white/55 shadow-[0_0_24px_rgba(255,255,255,0.22)] sm:left-1/2" />
+                <div
+                  className="absolute left-4 top-8 h-3 w-3 -translate-x-1/2 rounded-full border bg-white/55 sm:left-1/2"
+                  style={{
+                    borderColor: `${theme.accent}88`,
+                    boxShadow: `0 0 24px ${theme.accent}55`,
+                  }}
+                />
                 <div className="glass-panel ml-10 w-full max-w-xl p-5 sm:ml-0 sm:p-6">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1 text-xs text-white/60">

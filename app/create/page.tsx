@@ -71,7 +71,7 @@ function CreateForm() {
   }
 
   return (
-    <main className="app-shell relative min-h-screen overflow-hidden bg-[#151827] px-6 py-12 text-white sm:py-16">
+    <main className="app-shell relative overflow-hidden px-6 py-12 sm:py-16">
       <div className="ambient-bg pointer-events-none absolute inset-0 overflow-hidden">
         <div className="ambient-orb float-slow absolute left-[-8rem] top-[-5rem] h-80 w-80 rounded-full bg-[rgba(168,135,255,0.35)] opacity-35 blur-3xl" />
         <div className="ambient-orb bubble-float absolute right-[-7rem] top-24 h-96 w-96 rounded-full bg-[rgba(96,165,250,0.28)] opacity-35 blur-3xl" />

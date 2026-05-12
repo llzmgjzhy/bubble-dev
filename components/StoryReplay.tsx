@@ -1,6 +1,8 @@
 "use client";
 
+import { getMoodTheme } from "@/app/lib/moodTheme";
 import { useMemo, useState } from "react";
+import type { CSSProperties } from "react";
 import type {
   BubbleStory,
   ReplayScriptItem,
@@ -55,6 +57,7 @@ export default function StoryReplay({
   const bodyText = currentFragment?.text
     ? truncateText(currentFragment.text)
     : "";
+  const theme = getMoodTheme(bubble.mood);
 
   function goPrevious() {
     setCurrentIndex((index) => clampIndex(index - 1, replayItems.length));
@@ -65,21 +68,36 @@ export default function StoryReplay({
   }
 
   return (
-    <main className="app-shell relative min-h-screen overflow-hidden bg-[#151827] text-white">
+    <main
+      className="app-shell relative overflow-hidden"
+      style={{ "--mood-accent": theme.accent } as CSSProperties}
+    >
       {backgroundImage ? (
         <>
-          <div
-            className="pointer-events-none absolute inset-0 scale-[1.02] bg-cover bg-center transition-transform duration-700"
-            style={{ backgroundImage: `url(${backgroundImage})` }}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={backgroundImage}
+            alt={currentFragment?.title ?? bubble.title}
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover"
           />
-          <div className="pointer-events-none absolute inset-0 bg-[#151827]/20" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#151827]/25 via-transparent to-[#151827]/40" />
+          <div className="pointer-events-none absolute inset-0 bg-[#10111a]/20" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-black/35 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-b from-transparent to-black/45" />
         </>
       ) : (
         <div className="ambient-bg pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="ambient-orb float-slow absolute left-[-8rem] top-[-5rem] h-80 w-80 rounded-full bg-[rgba(168,135,255,0.35)] opacity-35 blur-3xl" />
-          <div className="ambient-orb bubble-float absolute right-[-7rem] top-24 h-96 w-96 rounded-full bg-[rgba(96,165,250,0.28)] opacity-35 blur-3xl" />
-          <div className="ambient-orb float-slow absolute bottom-[-8rem] left-[35%] h-96 w-96 rounded-full bg-[rgba(251,191,120,0.22)] opacity-35 blur-3xl" />
+          <div
+            className="ambient-orb float-slow absolute left-[-8rem] top-[-5rem] h-80 w-80 rounded-full opacity-35 blur-3xl"
+            style={{ backgroundColor: theme.orbs[0] }}
+          />
+          <div
+            className="ambient-orb bubble-float absolute right-[-7rem] top-24 h-96 w-96 rounded-full opacity-35 blur-3xl"
+            style={{ backgroundColor: theme.orbs[1] }}
+          />
+          <div
+            className="ambient-orb float-slow absolute bottom-[-8rem] left-[35%] h-96 w-96 rounded-full opacity-35 blur-3xl"
+            style={{ backgroundColor: theme.orbs[2] }}
+          />
         </div>
       )}
 
@@ -96,12 +114,20 @@ export default function StoryReplay({
           {replayItems.map((item, index) => (
             <div
               key={`${item.fragmentId}-${index}`}
-              className="h-1 flex-1 overflow-hidden rounded-full bg-white/18"
+              className="h-1 flex-1 overflow-hidden rounded-full bg-white/20"
             >
               <div
                 className={`h-full rounded-full bg-white/80 transition-all duration-500 ${
                   index <= currentIndex ? "w-full" : "w-0"
                 }`}
+                style={{
+                  backgroundColor:
+                    index <= currentIndex ? theme.accent : undefined,
+                  boxShadow:
+                    index <= currentIndex
+                      ? `0 0 18px ${theme.accent}66`
+                      : undefined,
+                }}
               />
             </div>
           ))}
@@ -121,14 +147,20 @@ export default function StoryReplay({
             className="absolute inset-y-0 right-0 w-1/2 cursor-e-resize"
           />
 
-          <div className="pointer-events-none mx-auto max-w-2xl rounded-3xl border border-white/15 bg-[#151827]/45 px-6 py-6 text-left shadow-2xl shadow-[#070a18]/30 backdrop-blur-sm sm:px-8 sm:py-8">
+          <div
+            className="pointer-events-none mx-auto max-w-2xl rounded-3xl border border-[rgba(255,255,255,0.16)] bg-[rgba(20,22,34,0.42)] px-6 py-6 text-left shadow-2xl shadow-[#070a18]/20 backdrop-blur-md sm:px-8 sm:py-8"
+            style={{
+              borderColor: `${theme.accent}40`,
+              boxShadow: `0 22px 64px rgb(7 10 24 / 0.22), 0 0 42px ${theme.accent}14`,
+            }}
+          >
             {currentFragment && (
               <p className="text-xs tracking-[0.22em] text-white/55">
                 {fragmentTypeLabel[currentFragment.type]}
               </p>
             )}
 
-            <h1 className="mt-4 whitespace-pre-wrap text-3xl font-medium leading-tight text-white/92 sm:text-5xl">
+            <h1 className="mt-4 whitespace-pre-wrap text-3xl font-medium leading-tight text-white/95 sm:text-5xl">
               {title}
             </h1>
 
@@ -159,7 +191,7 @@ export default function StoryReplay({
         <footer className="glass-panel mx-auto flex w-full max-w-3xl flex-col gap-4 px-5 py-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xl font-medium text-white/90">{bubble.title}</p>
-            <p className="mt-2 text-xs text-white/45">
+            <p className="mt-2 text-xs text-white/60">
               {currentIndex + 1} / {replayItems.length} · 点击左右两侧切换
             </p>
           </div>
@@ -168,6 +200,10 @@ export default function StoryReplay({
               <span
                 key={mood}
                 className="rounded-full border border-white/15 bg-white/[0.08] px-3 py-1 text-xs text-white/70"
+                style={{
+                  borderColor: `${theme.accent}55`,
+                  boxShadow: `0 0 18px ${theme.accent}14`,
+                }}
               >
                 {mood}
               </span>
