@@ -8,6 +8,7 @@ import type {
   ReplayScriptItem,
   StoryFragment,
 } from "@/app/types/bubble";
+import AppShell from "@/components/AppShell";
 
 type StoryReplayProps = {
   bubble: BubbleStory;
@@ -67,11 +68,8 @@ export default function StoryReplay({
     setCurrentIndex((index) => clampIndex(index + 1, replayItems.length));
   }
 
-  return (
-    <main
-      className="app-shell relative overflow-hidden"
-      style={{ "--mood-accent": theme.accent } as CSSProperties}
-    >
+  const content = (
+    <>
       {backgroundImage ? (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -80,41 +78,26 @@ export default function StoryReplay({
             alt={currentFragment?.title ?? bubble.title}
             className="pointer-events-none absolute inset-0 h-full w-full object-cover"
           />
-          <div className="pointer-events-none absolute inset-0 bg-[#10111a]/20" />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-black/35 to-transparent" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-b from-transparent to-black/45" />
+          <div className="pointer-events-none absolute inset-0 bg-[rgba(30,41,59,0.10)]" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-slate-900/15 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-b from-transparent to-slate-900/20" />
         </>
-      ) : (
-        <div className="ambient-bg pointer-events-none absolute inset-0 overflow-hidden">
-          <div
-            className="ambient-orb float-slow absolute left-[-8rem] top-[-5rem] h-80 w-80 rounded-full opacity-35 blur-3xl"
-            style={{ backgroundColor: theme.orbs[0] }}
-          />
-          <div
-            className="ambient-orb bubble-float absolute right-[-7rem] top-24 h-96 w-96 rounded-full opacity-35 blur-3xl"
-            style={{ backgroundColor: theme.orbs[1] }}
-          />
-          <div
-            className="ambient-orb float-slow absolute bottom-[-8rem] left-[35%] h-96 w-96 rounded-full opacity-35 blur-3xl"
-            style={{ backgroundColor: theme.orbs[2] }}
-          />
-        </div>
-      )}
+      ) : null}
 
       <div className="relative z-10 flex min-h-screen flex-col px-5 py-5 sm:px-8 sm:py-7">
         <button
           type="button"
           onClick={onExit}
-          className="ghost-button bubble-soft mb-4 w-fit rounded-full px-4 py-2 text-sm"
+          className="mist-button-secondary mb-4 w-fit px-4 py-2 text-sm"
         >
           退出回看
         </button>
 
-        <div className="flex gap-1.5">
+        <div className="mist-panel flex gap-1.5 px-3 py-3">
           {replayItems.map((item, index) => (
             <div
               key={`${item.fragmentId}-${index}`}
-              className="h-1 flex-1 overflow-hidden rounded-full bg-white/20"
+              className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/55"
             >
               <div
                 className={`h-full rounded-full bg-white/80 transition-all duration-500 ${
@@ -138,40 +121,46 @@ export default function StoryReplay({
             type="button"
             aria-label="上一段"
             onClick={goPrevious}
-            className="absolute inset-y-0 left-0 w-1/2 cursor-w-resize"
+            className="mist-link-button absolute inset-y-0 left-0 z-10 w-1/2 cursor-w-resize opacity-0"
           />
           <button
             type="button"
             aria-label="下一段"
             onClick={goNext}
-            className="absolute inset-y-0 right-0 w-1/2 cursor-e-resize"
+            className="mist-link-button absolute inset-y-0 right-0 z-10 w-1/2 cursor-e-resize opacity-0"
           />
+          <span className="mist-link-button pointer-events-none absolute left-0 top-1/2 hidden -translate-y-1/2 text-xs opacity-70 sm:inline-flex">
+            上一条
+          </span>
+          <span className="mist-link-button pointer-events-none absolute right-0 top-1/2 hidden -translate-y-1/2 text-xs opacity-70 sm:inline-flex">
+            下一条
+          </span>
 
           <div
-            className="pointer-events-none mx-auto max-w-2xl rounded-3xl border border-[rgba(255,255,255,0.16)] bg-[rgba(20,22,34,0.42)] px-6 py-6 text-left shadow-2xl shadow-[#070a18]/20 backdrop-blur-md sm:px-8 sm:py-8"
+            className="pointer-events-none mx-auto max-w-2xl rounded-[2rem] border border-white/70 bg-white/62 p-6 text-left shadow-2xl shadow-indigo-200/25 backdrop-blur-2xl md:p-8"
             style={{
-              borderColor: `${theme.accent}40`,
-              boxShadow: `0 22px 64px rgb(7 10 24 / 0.22), 0 0 42px ${theme.accent}14`,
+              borderColor: `${theme.accent}55`,
+              boxShadow: `0 22px 64px rgb(129 140 248 / 0.18), 0 0 42px ${theme.accent}16`,
             }}
           >
             {currentFragment && (
-              <p className="text-xs tracking-[0.22em] text-white/55">
+              <span className="mist-chip text-xs">
                 {fragmentTypeLabel[currentFragment.type]}
-              </p>
+              </span>
             )}
 
-            <h1 className="mt-4 whitespace-pre-wrap text-3xl font-medium leading-tight text-white/95 sm:text-5xl">
+            <h1 className="mt-4 whitespace-pre-wrap text-3xl font-semibold leading-tight text-slate-900 sm:text-5xl">
               {title}
             </h1>
 
             {shouldShowReplayText && (
-              <p className="mt-5 whitespace-pre-wrap text-xl font-light leading-9 text-white/80 sm:text-2xl">
+              <p className="mt-5 whitespace-pre-wrap text-xl font-light leading-9 text-slate-600 sm:text-2xl">
                 {currentReplay.displayText}
               </p>
             )}
 
             {bodyText && (
-              <p className="mt-6 max-w-2xl whitespace-pre-wrap text-base leading-8 text-white/72 sm:text-lg">
+              <p className="mt-6 max-w-2xl whitespace-pre-wrap text-base leading-8 text-slate-700 sm:text-lg">
                 {bodyText}
               </p>
             )}
@@ -180,7 +169,7 @@ export default function StoryReplay({
               <button
                 type="button"
                 onClick={onExit}
-                className="ghost-button pointer-events-auto bubble-soft mt-10 rounded-full px-5 py-3 text-sm"
+                className="mist-button-secondary pointer-events-auto mt-10 px-5 py-3 text-sm"
               >
                 回到故事流
               </button>
@@ -188,10 +177,10 @@ export default function StoryReplay({
           </div>
         </section>
 
-        <footer className="glass-panel mx-auto flex w-full max-w-3xl flex-col gap-4 px-5 py-4 sm:flex-row sm:items-end sm:justify-between">
+        <footer className="mist-panel mx-auto flex w-full max-w-3xl flex-col gap-4 px-5 py-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xl font-medium text-white/90">{bubble.title}</p>
-            <p className="mt-2 text-xs text-white/60">
+            <p className="text-xl font-medium text-slate-900">{bubble.title}</p>
+            <p className="mt-2 text-xs text-slate-500">
               {currentIndex + 1} / {replayItems.length} · 点击左右两侧切换
             </p>
           </div>
@@ -199,7 +188,7 @@ export default function StoryReplay({
             {bubble.mood.map((mood) => (
               <span
                 key={mood}
-                className="rounded-full border border-white/15 bg-white/[0.08] px-3 py-1 text-xs text-white/70"
+                className="mist-chip px-3 py-1 text-xs"
                 style={{
                   borderColor: `${theme.accent}55`,
                   boxShadow: `0 0 18px ${theme.accent}14`,
@@ -211,6 +200,26 @@ export default function StoryReplay({
           </div>
         </footer>
       </div>
-    </main>
+    </>
+  );
+
+  if (backgroundImage) {
+    return (
+      <main
+        className="relative min-h-screen overflow-hidden text-slate-900"
+        style={{ "--mood-accent": theme.accent } as CSSProperties}
+      >
+        {content}
+      </main>
+    );
+  }
+
+  return (
+    <AppShell
+      variant="replay"
+      style={{ "--mood-accent": theme.accent } as CSSProperties}
+    >
+      {content}
+    </AppShell>
   );
 }

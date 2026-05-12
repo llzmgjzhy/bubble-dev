@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 import { useState } from "react";
 import { getMoodTheme } from "@/app/lib/moodTheme";
 import type { BubbleStory, StoryFragment } from "@/app/types/bubble";
+import AppShell from "@/components/AppShell";
 import StoryReplay from "@/components/StoryReplay";
 
 type StoryFlowEditorProps = {
@@ -354,40 +355,25 @@ export default function StoryFlowEditor({
   }
 
   return (
-    <main
-      className="app-shell relative overflow-hidden px-5 py-8 sm:px-8 sm:py-12"
+    <AppShell
+      variant="story"
       style={{ "--mood-accent": theme.accent } as CSSProperties}
     >
-      <div className="ambient-bg pointer-events-none absolute inset-0 overflow-hidden">
-        <div
-          className="ambient-orb float-slow absolute left-[-8rem] top-[-5rem] h-80 w-80 rounded-full opacity-35 blur-3xl"
-          style={{ backgroundColor: theme.orbs[0] }}
-        />
-        <div
-          className="ambient-orb bubble-float absolute right-[-7rem] top-24 h-96 w-96 rounded-full opacity-35 blur-3xl"
-          style={{ backgroundColor: theme.orbs[1] }}
-        />
-        <div
-          className="ambient-orb float-slow absolute bottom-[-8rem] left-[35%] h-96 w-96 rounded-full opacity-35 blur-3xl"
-          style={{ backgroundColor: theme.orbs[2] }}
-        />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-5xl">
-        <header className="flex flex-col gap-8 pb-12 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mx-auto max-w-5xl px-6 py-14">
+        <header className="mist-panel-strong flex flex-col gap-8 p-6 md:p-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs tracking-[0.28em] text-white/50">小泡泡</p>
-            <h1 className="mt-4 text-4xl font-medium tracking-tight text-white/95 sm:text-5xl">
+            <p className="text-xs tracking-[0.28em] text-slate-500">小泡泡</p>
+            <h1 className="mt-4 text-4xl font-medium tracking-tight text-slate-900 sm:text-5xl">
               {editableBubble.title}
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-8 text-white/70">
+            <p className="mt-4 max-w-2xl text-base leading-8 text-slate-600">
               {editableBubble.subtitle}
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {editableBubble.mood.map((mood) => (
                 <span
                   key={mood}
-                  className="rounded-full border border-white/15 bg-white/[0.08] px-3 py-1 text-xs text-white/70 backdrop-blur"
+                  className="mist-chip px-3 py-1 text-xs"
                   style={{
                     borderColor: `${theme.accent}55`,
                     boxShadow: `0 0 22px ${theme.accent}18`,
@@ -402,29 +388,29 @@ export default function StoryFlowEditor({
           <button
             type="button"
             onClick={() => setIsReplayMode(true)}
-            className="ghost-button bubble-soft w-fit rounded-full px-5 py-3 text-sm"
+            className="mist-button-primary w-fit text-sm"
           >
             进入回看模式
           </button>
         </header>
 
         {notice && (
-          <div className="glass-panel mb-8 px-4 py-3 text-sm text-white/70">
+          <div className="mist-panel mb-8 px-4 py-3 text-sm text-slate-600">
             {notice}
           </div>
         )}
 
-        <section className="glass-panel mb-12 p-5 sm:p-6">
+        <section className="mist-panel mb-12 mt-8 p-5 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-lg font-medium text-white/90">
+              <h2 className="text-lg font-medium text-slate-900">
                 放入一些画面
               </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/65">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                 这些图片不会立刻上传云端，只用于当前故事流预览。
               </p>
             </div>
-            <label className="ghost-button bubble-soft w-fit cursor-pointer rounded-full px-4 py-2 text-sm">
+            <label className="mist-button-secondary w-fit cursor-pointer text-sm">
               添加图片
               <input
                 type="file"
@@ -444,7 +430,7 @@ export default function StoryFlowEditor({
               {uploadedImages.map((image) => (
                 <div
                   key={image.id}
-                  className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.08] shadow-lg shadow-black/25"
+                  className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-white/70 bg-white/45 shadow-lg shadow-indigo-200/30"
                 >
                   <div
                     aria-label={image.name}
@@ -455,7 +441,7 @@ export default function StoryFlowEditor({
                   <button
                     type="button"
                     onClick={() => removeUploadedImage(image.id)}
-                    className="absolute right-1.5 top-1.5 rounded-full border border-white/20 bg-[#171827]/45 px-2 py-1 text-[10px] text-white/85 backdrop-blur-sm hover:bg-[#171827]/60"
+                    className="mist-link-button absolute right-1.5 top-1.5 bg-white/70 px-2 py-1 text-[10px]"
                   >
                     删除
                   </button>
@@ -466,68 +452,46 @@ export default function StoryFlowEditor({
         </section>
 
         <section className="relative">
-          <div
-            className="absolute left-4 top-3 h-[calc(100%-1.5rem)] w-px bg-gradient-to-b from-white/0 to-white/0 sm:left-1/2"
-            style={{
-              backgroundImage: `linear-gradient(to bottom, transparent, ${theme.accent}55, transparent)`,
-            }}
-          />
-
-          <div className="space-y-8">
+          <div className="space-y-7">
             {editableBubble.storyFragments.map((fragment, index) => {
               const interaction = interactions[fragment.id];
               const question = fragmentQuestions[fragment.id];
               const isLoading = loadingFragmentId === fragment.id;
 
               return (
-              <article
-                key={fragment.id}
-                className={`relative flex ${
-                  index % 2 === 0 ? "sm:justify-start" : "sm:justify-end"
-                }`}
-              >
-                <div
-                  className="absolute left-4 top-8 h-3 w-3 -translate-x-1/2 rounded-full border bg-white/55 sm:left-1/2"
-                  style={{
-                    borderColor: `${theme.accent}88`,
-                    boxShadow: `0 0 24px ${theme.accent}55`,
-                  }}
-                />
-                <div className="glass-panel ml-10 w-full max-w-xl p-5 sm:ml-0 sm:p-6">
+              <article key={fragment.id} className="relative pl-9">
+                {index < editableBubble.storyFragments.length - 1 && (
+                  <div className="absolute left-2 top-7 h-[calc(100%+1.75rem)] w-px bg-[rgba(148,163,184,0.25)]" />
+                )}
+                <div className="absolute left-0 top-7 h-4 w-4 rounded-full border border-white/80 bg-white shadow-[0_0_18px_rgba(129,140,248,0.24)]" />
+                <div className="mist-panel p-6 transition-all duration-500 hover:-translate-y-1 md:p-7">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1 text-xs text-white/60">
+                    <span className="mist-chip px-3 py-1 text-xs">
                       {fragmentTypeLabel[fragment.type]}
-                    </span>
-                    <span className="rounded-full border border-white/15 bg-white/[0.08] px-3 py-1 text-xs text-white/65">
-                      {mediaTypeLabel[fragment.mediaSuggestion.type]}
                     </span>
                   </div>
 
-                  <h2 className="mt-5 text-2xl font-medium text-white/92">
+                  <h2 className="mt-5 text-2xl font-semibold text-slate-900">
                     {fragment.title}
                   </h2>
-                  <p className="mt-4 whitespace-pre-wrap text-base leading-8 text-white/74">
+                  <p className="mt-4 whitespace-pre-wrap text-base leading-8 text-slate-700">
                     {fragment.text}
                   </p>
 
                   {fragment.attachedMedia?.[0] && (
-                    <div className="mt-5 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.08] shadow-2xl shadow-[#070a18]/25">
-                      <div
-                        aria-label={
-                          fragment.attachedMedia[0].name ?? fragment.title
-                        }
-                        className="aspect-video w-full bg-cover bg-center"
-                        role="img"
-                        style={{
-                          backgroundImage: `url(${fragment.attachedMedia[0].url})`,
-                        }}
+                    <div className="mt-5 overflow-hidden rounded-2xl border border-white/70 bg-white/45 shadow-lg shadow-indigo-200/25">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={fragment.attachedMedia[0].url}
+                        alt={fragment.attachedMedia[0].name ?? fragment.title}
+                        className="aspect-video w-full object-cover"
                       />
                       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-                        <p className="truncate text-xs text-white/60">
+                        <p className="truncate text-xs text-slate-500">
                           {fragment.attachedMedia[0].name ?? "已放入图片"}
                         </p>
                         <div className="flex gap-3">
-                          <label className="shrink-0 cursor-pointer text-xs text-white/60 hover:text-white/85">
+                          <label className="mist-link-button shrink-0 cursor-pointer text-xs">
                             更换图片
                             <input
                               type="file"
@@ -546,7 +510,7 @@ export default function StoryFlowEditor({
                           <button
                             type="button"
                             onClick={() => removeFragmentImage(fragment.id)}
-                            className="shrink-0 text-xs text-white/60 hover:text-white/85"
+                            className="mist-link-button shrink-0 text-xs"
                           >
                             移除图片
                           </button>
@@ -555,9 +519,11 @@ export default function StoryFlowEditor({
                     </div>
                   )}
 
-                  <div className="mt-5 rounded-2xl border border-white/15 bg-white/[0.08] px-4 py-3">
-                    <p className="text-xs text-white/50">适合承载</p>
-                    <p className="mt-2 text-sm leading-6 text-white/68">
+                  <div className="mt-5 rounded-2xl border border-white/60 bg-white/45 p-4">
+                    <p className="text-xs text-slate-500">
+                      {mediaTypeLabel[fragment.mediaSuggestion.type]}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
                       {mediaTypeLabel[fragment.mediaSuggestion.type]}：
                       {fragment.mediaSuggestion.reason}
                     </p>
@@ -569,20 +535,20 @@ export default function StoryFlowEditor({
                         key={`${fragment.id}-${item}`}
                         type="button"
                         onClick={() => markComingSoon(`添加${item}`, fragment.title)}
-                        className="ghost-button bubble-soft rounded-full px-3 py-2 text-xs"
+                        className="mist-button-secondary rounded-full px-3 py-2 text-xs"
                       >
                         {item}
                       </button>
                     ))}
                   </div>
 
-                  <div className="mt-5 border-t border-white/10 pt-4">
+                  <div className="mt-5 border-t border-white/70 pt-4">
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
                         disabled={Boolean(loadingFragmentId)}
                         onClick={() => openInteraction(fragment.id, "expand")}
-                        className="ghost-button bubble-soft rounded-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-35"
+                        className="mist-button-secondary rounded-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-35"
                       >
                         补充这一段
                       </button>
@@ -590,7 +556,7 @@ export default function StoryFlowEditor({
                         type="button"
                         disabled={Boolean(loadingFragmentId)}
                         onClick={() => refineFragment(fragment, "rewrite")}
-                        className="ghost-button bubble-soft rounded-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-35"
+                        className="mist-button-secondary rounded-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-35"
                       >
                         换种表达
                       </button>
@@ -598,7 +564,7 @@ export default function StoryFlowEditor({
                         type="button"
                         disabled={Boolean(loadingFragmentId)}
                         onClick={() => openInteraction(fragment.id, "correct")}
-                        className="ghost-button bubble-soft rounded-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-35"
+                        className="mist-button-secondary rounded-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-35"
                       >
                         这个不准确
                       </button>
@@ -606,11 +572,11 @@ export default function StoryFlowEditor({
                         type="button"
                         disabled={Boolean(loadingFragmentId)}
                         onClick={() => refineFragment(fragment, "ask")}
-                        className="ghost-button bubble-soft rounded-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-35"
+                        className="mist-button-secondary rounded-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-35"
                       >
                         问我一个问题
                       </button>
-                      <label className="ghost-button bubble-soft cursor-pointer rounded-full px-3 py-2 text-xs">
+                      <label className="mist-button-secondary cursor-pointer rounded-full px-3 py-2 text-xs">
                         添加图片
                         <input
                           type="file"
@@ -630,7 +596,7 @@ export default function StoryFlowEditor({
                         <button
                           type="button"
                           onClick={() => openImagePicker(fragment.id)}
-                          className="ghost-button bubble-soft rounded-full px-3 py-2 text-xs"
+                          className="mist-button-secondary rounded-full px-3 py-2 text-xs"
                         >
                           从已添加图片中选择
                         </button>
@@ -638,8 +604,8 @@ export default function StoryFlowEditor({
                     </div>
 
                     {imagePickerFragmentId === fragment.id && (
-                      <div className="glass-panel mt-4 p-3">
-                        <p className="text-xs text-white/55">
+                      <div className="mist-panel mt-4 p-3">
+                        <p className="text-xs text-slate-500">
                           选择一张图放进这一段
                         </p>
                         <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
@@ -650,7 +616,7 @@ export default function StoryFlowEditor({
                               onClick={() =>
                                 attachImageToFragment(fragment.id, image)
                               }
-                              className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.08] shadow-lg shadow-black/20 transition hover:scale-[1.03] hover:border-white/30"
+                              className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-white/70 bg-white/45 shadow-lg shadow-indigo-200/25 transition hover:scale-[1.03] hover:border-white/90"
                             >
                               <span
                                 aria-label={image.name}
@@ -667,7 +633,7 @@ export default function StoryFlowEditor({
                     )}
 
                     {interaction && (
-                      <div className="glass-panel mt-4 p-3">
+                      <div className="mist-panel mt-4 p-3">
                         <textarea
                           value={interaction.input}
                           onChange={(event) =>
@@ -681,7 +647,7 @@ export default function StoryFlowEditor({
                               ? "补充一点你想起的细节"
                               : "哪里不准确？你记得的其实是……"
                           }
-                          className="soft-input min-h-24 w-full resize-none rounded-2xl px-4 py-3 text-sm leading-7"
+                          className="mist-input mist-textarea min-h-24 text-sm"
                         />
                         <div className="mt-3 flex justify-end gap-2">
                           <button
@@ -693,7 +659,7 @@ export default function StoryFlowEditor({
                                 return next;
                               })
                             }
-                            className="ghost-button bubble-soft rounded-full px-3 py-2 text-xs"
+                            className="mist-button-secondary rounded-full px-3 py-2 text-xs"
                           >
                             先不补
                           </button>
@@ -701,7 +667,7 @@ export default function StoryFlowEditor({
                             type="button"
                             disabled={!interaction.input.trim() || isLoading}
                             onClick={() => submitInteraction(fragment)}
-                            className="ghost-button bubble-soft rounded-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-35"
+                            className="mist-button-secondary rounded-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-35"
                           >
                             {isLoading ? "正在靠近…" : "放进这一段"}
                           </button>
@@ -710,8 +676,8 @@ export default function StoryFlowEditor({
                     )}
 
                     {question && (
-                      <div className="glass-panel mt-4 p-4">
-                        <p className="text-sm leading-7 text-white/72">
+                      <div className="mist-panel mt-4 p-4">
+                        <p className="text-sm leading-7 text-slate-700">
                           {question.question}
                         </p>
                         {question.options.length > 0 && (
@@ -724,7 +690,7 @@ export default function StoryFlowEditor({
                                 onClick={() =>
                                   refineFragment(fragment, "expand", option)
                                 }
-                                className="ghost-button bubble-soft rounded-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-35"
+                                className="mist-button-secondary rounded-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-35"
                               >
                                 {option}
                               </button>
@@ -735,7 +701,7 @@ export default function StoryFlowEditor({
                     )}
 
                     {isLoading && (
-                      <p className="mt-3 text-xs text-white/55">
+                      <p className="mt-3 text-xs text-slate-500">
                         AI 正在轻轻整理这一段。
                       </p>
                     )}
@@ -747,17 +713,17 @@ export default function StoryFlowEditor({
           </div>
         </section>
 
-        <section className="glass-panel mt-16 p-5 sm:p-7">
-          <p className="text-sm tracking-[0.18em] text-white/50">
+        <section className="mist-panel mt-16 p-5 sm:p-7">
+          <p className="text-sm tracking-[0.18em] text-slate-500">
             AI 想轻轻问你
           </p>
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {editableBubble.followUpPrompts.map((prompt) => (
               <div
                 key={prompt.id}
-                className="rounded-2xl border border-white/15 bg-white/[0.08] p-4"
+                className="rounded-2xl border border-white/70 bg-white/45 p-4"
               >
-                <p className="text-sm leading-7 text-white/76">
+                <p className="text-sm leading-7 text-slate-700">
                   {prompt.question}
                 </p>
                 {prompt.options && prompt.options.length > 0 && (
@@ -767,7 +733,7 @@ export default function StoryFlowEditor({
                         key={`${prompt.id}-${option}`}
                         type="button"
                         onClick={() => setSelectedPrompt(`已选择：${option}`)}
-                        className="ghost-button bubble-soft rounded-full px-3 py-2 text-xs"
+                        className="mist-button-secondary rounded-full px-3 py-2 text-xs"
                       >
                         {option}
                       </button>
@@ -779,7 +745,7 @@ export default function StoryFlowEditor({
           </div>
 
           {selectedPrompt && (
-            <p className="glass-panel mt-5 px-4 py-3 text-sm text-white/70">
+            <p className="mist-panel mt-5 px-4 py-3 text-sm text-slate-600">
               {selectedPrompt}
             </p>
           )}
@@ -789,12 +755,12 @@ export default function StoryFlowEditor({
           <button
             type="button"
             onClick={() => setIsOriginalOpen((current) => !current)}
-            className="w-fit text-sm text-white/60 hover:text-white/85"
+            className="mist-link-button w-fit text-sm"
           >
             查看原始输入
           </button>
           {isOriginalOpen && (
-            <p className="max-w-3xl whitespace-pre-wrap rounded-2xl border border-white/15 bg-white/[0.07] p-4 text-sm leading-7 text-white/68">
+            <p className="max-w-3xl whitespace-pre-wrap rounded-2xl border border-white/70 bg-white/45 p-4 text-sm leading-7 text-slate-600">
               {editableBubble.originalText}
             </p>
           )}
@@ -802,19 +768,19 @@ export default function StoryFlowEditor({
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link
               href="/create"
-              className="ghost-button bubble-soft rounded-full px-5 py-3 text-center text-sm"
+              className="mist-button-secondary rounded-full px-5 py-3 text-center text-sm"
             >
               再生成一个泡泡
             </Link>
             <Link
               href="/"
-              className="ghost-button bubble-soft rounded-full px-5 py-3 text-center text-sm"
+              className="mist-button-secondary rounded-full px-5 py-3 text-center text-sm"
             >
               回到首页
             </Link>
           </div>
         </footer>
       </div>
-    </main>
+    </AppShell>
   );
 }

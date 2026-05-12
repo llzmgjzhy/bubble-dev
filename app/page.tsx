@@ -120,13 +120,13 @@ export default function Home() {
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 href="/create"
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/70 bg-white/70 px-7 py-3 text-sm font-medium text-slate-900 shadow-[0_18px_48px_rgba(129,140,248,0.18)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 hover:bg-white/85"
+                className="mist-button-primary text-sm"
               >
                 创建一个泡泡
               </Link>
               <Link
                 href="#moments"
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/60 bg-white/25 px-6 py-3 text-sm font-medium text-slate-600 backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 hover:bg-white/45 hover:text-slate-800"
+                className="mist-button-secondary text-sm"
               >
                 看看示例
               </Link>
@@ -147,7 +147,7 @@ export default function Home() {
               <Link
                 key={prompt}
                 href={`/create?initialText=${encodeURIComponent(prompt)}`}
-                className="group rounded-[1.5rem] border border-white/60 bg-white/35 p-4 text-sm leading-7 text-slate-600 shadow-[0_18px_56px_rgba(129,140,248,0.10)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 hover:bg-white/55 hover:text-slate-800"
+                className="mist-panel group p-4 text-sm leading-7 text-slate-600 transition-all duration-500 hover:-translate-y-1 hover:bg-white/70 hover:text-slate-800"
               >
                 <span className="mr-2 text-slate-400 transition group-hover:text-slate-500">
                   ·

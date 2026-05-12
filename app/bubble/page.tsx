@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import AppShell from "@/components/AppShell";
 import StoryFlowEditor from "@/components/StoryFlowEditor";
 import type { BubbleStory } from "@/app/types/bubble";
 
@@ -106,51 +107,41 @@ function BubbleContent() {
 
   if (isLoading) {
     return (
-      <main className="app-shell relative overflow-hidden">
-        <div className="ambient-bg pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="ambient-orb float-slow absolute left-[-8rem] top-[-5rem] h-80 w-80 rounded-full bg-[rgba(168,135,255,0.35)] opacity-35 blur-3xl" />
-          <div className="ambient-orb bubble-float absolute right-[-7rem] top-24 h-96 w-96 rounded-full bg-[rgba(96,165,250,0.28)] opacity-35 blur-3xl" />
-          <div className="ambient-orb float-slow absolute bottom-[-8rem] left-[35%] h-96 w-96 rounded-full bg-[rgba(251,191,120,0.22)] opacity-35 blur-3xl" />
-        </div>
-        <div className="relative z-10 mx-auto flex min-h-screen max-w-[760px] flex-col items-center justify-center px-6 text-center">
-          <div className="glass-panel bubble-float px-8 py-7">
-            <p className="text-lg leading-8 text-white/90">
+      <AppShell variant="story">
+        <div className="mx-auto flex min-h-screen max-w-[760px] flex-col items-center justify-center px-6 text-center">
+          <div className="mist-panel bubble-float px-8 py-7">
+            <p className="text-lg leading-8 text-slate-800">
               正在把这些碎片整理成故事流
             </p>
-            <p className="mt-3 text-sm text-white/65">
+            <p className="mt-3 text-sm text-slate-500">
               记忆锚点、光线和声音正在慢慢浮起来。
             </p>
           </div>
         </div>
-      </main>
+      </AppShell>
     );
   }
 
   if (error || !bubble) {
     return (
-      <main className="app-shell relative overflow-hidden">
-        <div className="ambient-bg pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="ambient-orb float-slow absolute left-[-8rem] top-[-5rem] h-80 w-80 rounded-full bg-[rgba(168,135,255,0.35)] opacity-35 blur-3xl" />
-          <div className="ambient-orb bubble-float absolute right-[-7rem] top-24 h-96 w-96 rounded-full bg-[rgba(96,165,250,0.28)] opacity-35 blur-3xl" />
-          <div className="ambient-orb float-slow absolute bottom-[-8rem] left-[35%] h-96 w-96 rounded-full bg-[rgba(251,191,120,0.22)] opacity-35 blur-3xl" />
-        </div>
-        <div className="relative z-10 mx-auto flex min-h-screen max-w-[760px] flex-col items-center justify-center px-6 text-center">
-          <div className="glass-panel px-8 py-7">
-            <h1 className="text-2xl font-medium text-white/90">
+      <AppShell variant="story">
+        <div className="mx-auto flex min-h-screen max-w-[760px] flex-col items-center justify-center px-6 text-center">
+          <div className="mist-panel px-8 py-7">
+            <h1 className="text-2xl font-medium text-slate-900">
               泡泡暂时没有形成
             </h1>
-            <p className="mt-4 text-sm leading-7 text-white/70">
+            <p className="mt-4 text-sm leading-7 text-slate-600">
               {error || "生成泡泡失败，请稍后再试。"}
             </p>
             <Link
               href="/create"
-              className="ghost-button bubble-soft mt-7 inline-flex rounded-full px-5 py-3 text-sm"
+              className="mist-button-secondary mt-7 px-5 py-3 text-sm"
             >
               回到创建页
             </Link>
           </div>
         </div>
-      </main>
+      </AppShell>
     );
   }
 
