@@ -369,12 +369,42 @@
   }
 }
 
+@keyframes bubble-preview-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes bubble-preview-image {
+  from {
+    opacity: 0.96;
+    transform: scale(1.03);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .bubble-float {
   animation: bubble-float 8s ease-in-out infinite;
 }
 
 .bubble-drift {
   animation: bubble-drift 14s ease-in-out infinite;
+}
+
+.bubble-preview-rise {
+  animation: bubble-preview-rise 700ms ease-out both;
+}
+
+.bubble-preview-image {
+  animation: bubble-preview-image 900ms ease-out both;
 }
 
 .bubble-surface {

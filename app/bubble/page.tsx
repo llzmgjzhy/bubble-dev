@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import BubblePreview from "@/components/BubblePreview";
 import StoryFlowEditor from "@/components/StoryFlowEditor";
 import type { BubbleStory } from "@/app/types/bubble";
 
@@ -49,6 +50,8 @@ function BubbleContent() {
   const [initialImages, setInitialImages] = useState<DraftImage[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [showEditor, setShowEditor] = useState(false);
+  const [regenerateKey, setRegenerateKey] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -56,6 +59,7 @@ function BubbleContent() {
     async function generateBubble() {
       setIsLoading(true);
       setError("");
+      setShowEditor(false);
 
       try {
         const response = await fetch("/api/generate-bubble", {
@@ -103,7 +107,7 @@ function BubbleContent() {
     generateBubble();
 
     return () => controller.abort();
-  }, [title, text, song]);
+  }, [title, text, song, regenerateKey]);
 
   if (isLoading) {
     return (
@@ -111,7 +115,7 @@ function BubbleContent() {
         <div className="mx-auto flex min-h-screen max-w-[760px] flex-col items-center justify-center px-6 text-center">
           <div className="mist-panel bubble-float px-8 py-7">
             <p className="text-lg leading-8 text-slate-800">
-              正在把这些碎片整理成故事流
+              正在让这个泡泡形成第一层轮廓
             </p>
             <p className="mt-3 text-sm text-slate-500">
               记忆锚点、光线和声音正在慢慢浮起来。
@@ -142,6 +146,16 @@ function BubbleContent() {
           </div>
         </div>
       </AppShell>
+    );
+  }
+
+  if (!showEditor) {
+    return (
+      <BubblePreview
+        bubble={bubble}
+        onContinue={() => setShowEditor(true)}
+        onRegenerate={() => setRegenerateKey((key) => key + 1)}
+      />
     );
   }
 

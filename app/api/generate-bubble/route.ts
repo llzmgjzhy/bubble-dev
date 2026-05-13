@@ -155,7 +155,7 @@ function buildPrompt(input: GenerateBubbleInput) {
 - 把它们组织成 storyFragments
 - 为每个片段建议最适合的媒体承载方式
 - 用 followUpPrompts 帮用户继续找回和补全
-- 用 replayScript 支持后续沉浸式回看
+- 用 replayScript 支持生成后的泡泡预览体验
 
 写作原则：
 - 克制
@@ -194,11 +194,25 @@ function buildPrompt(input: GenerateBubbleInput) {
 - followUpPrompts.targetFragmentId 必须对应 storyFragments 里的 id
 - followUpPrompts.question 要温和、具体，不像问卷
 - followUpPrompts.options 如果没有合适选项，返回空数组
-- replayScript 用于未来沉浸回看，顺序应该对应 storyFragments 的情绪流动
+- replayScript 是生成后预览体验的脚本，不是摘要
+- replayScript 的顺序应该对应 storyFragments 的情绪流动：场景出现 → 触发物进入 → 感觉浮现 → 旧事连接 → 余波收束
 - replayScript.fragmentId 必须对应 storyFragments 里的 id
-- replayScript.displayText 不超过 40 字
+- replayScript.displayText 不超过 32 字
+- replayScript.displayText 要像一条在泡泡里慢慢浮现的短句
+- replayScript.displayText 不要使用分析语气，不要复述 fragment.title
+- replayScript.displayText 要有画面、声音、身体感或时间感
+- replayScript.displayText 不要写成鸡汤，不要写成诗歌堆砌
+- replayScript.displayText 要克制、具体、有留白
 - replayScript.duration 使用毫秒数，建议 1800 到 5000
 - originalText 保存用户原文
+
+replayScript.displayText 示例：
+不好的："这是一个关于清晨和回忆的片段。"
+好的：
+- "宿舍还没完全亮起来。"
+- "身体还困着，意识却先醒了。"
+- "前奏响起时，旧日子慢慢靠近。"
+- "那些相似的清晨，被轻轻连在一起。"
 
 输出 JSON 结构：
 {
